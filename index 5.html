@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jainam Task Tracker</title>
+<style>
+@font-face {
+  font-family: 'Aptos';
+  src: url('https://fonts.cdnfonts.com/s/96474/Aptos-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+body, input, textarea, select, button {
+  font-family: 'Aptos', Arial, sans-serif;
+  font-size: 10px;
+  background: linear-gradient(135deg, #f0f4f8, #d9e6fb);
+  color: #20435c;
+  margin: 0;
+}
+:root {
+  --primary-light: #c7dafb;
+  --primary-mid: #4a90e2;
+  --primary-dark: #1a3b73;
+  --bg: #ffffff;
+  --panel: #f7fbfe;
+  --panel-2: #d0e7ff;
+  --ink: #20435c;
+  --muted: #617d98;
+  --ok: #2e8540;
+  --warn: #a6760d;
+  --danger: #bb3b3b;
+  --chip: #e5f0ff;
+  --line: #a8bedb;
+  --readonly: #f4f4f4;
+}
+* { box-sizing: border-box; }
+header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--primary-light);
+  border-bottom: 2px solid var(--primary-mid);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 0.07);
+}
+.wrap {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 13px 29px;
+}
+h1 {
+  margin: 0;
+  font-size: 19px;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary-dark);
+  font-weight: 700;
+  font-style: italic;
+}
+.badge {
+  font-size: 8.5px;
+  color: var(--primary-mid);
+  background: var(--primary-light);
+  border: 1px solid var(--primary-mid);
+  border-radius: 20px;
+  padding: 3px 7px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 20% 80%;
+  gap: 24px;
+  margin-top: 17px;
+}
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+}
+.card {
+  background: var(--bg);
+  border-radius: 18px;
+  box-shadow: 0 6px 10px rgb(0 0 0 / 0.08);
+  border: 1px solid var(--line);
+}
+.card-inner {
+  padding: 13px 13px;
+}
+.card h2 {
+  margin: 0 0 7px 0;
+  font-size: 14px;
+  color: var(--primary-mid);
+  font-weight: 800;
+  text-shadow: 0 1px 1px rgb(74 144 226 / 0.4);
+}
+label {display:block;font-size: 10px;color:var(--primary-dark);margin:8px 0 4px 0;font-weight:600;}
+input[type="text"],input[type="number"], select, textarea {
+  width:100%;padding:6px 8px;border-radius:10px;border: 1.2px solid var(--primary-light);
+  background:var(--panel-2);color:var(--primary-dark);font-size:11px;font-weight:600;outline-offset:1.5px;
+}
+input[readonly],textarea[readonly] {background:var(--readonly)!important;color:var(--muted)!important;}
+input[type="text"]:focus,input[type="number"]:focus,select:focus,textarea:focus {
+  outline:none;border-color:var(--primary-mid);background:var(--panel);box-shadow:0 0 6px var(--primary-mid);
+}
+textarea{min-height:42px;}
+.row{display:flex;gap:10px;}
+.row>*{flex:1;}
+.radio-group {
+  display: flex; align-items: center; gap: 13px; margin-top:6px;font-weight:700;
+}
+.radio-group label{cursor:pointer;font-size: 10px; color:var(--primary-mid);}
+.radio-group input[type="radio"] {accent-color: var(--primary-mid);width:12px;height:12px;}
+.chk{margin-top:9px;display:flex;align-items:center;gap:7px;font-size:9.5px;font-weight:700;color:var(--primary-mid);}
+.actions{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;}
+button {
+  cursor: pointer; border:none;border-radius:14px;padding:10px 14px;font-weight:800;font-size:10px;
+  letter-spacing:.10em;transition:background-color .2s;text-transform:uppercase;
+  box-shadow:0 2px 4px rgb(74 144 226 / .08);
+}
+.btn-primary {background:var(--primary-mid);color:white;}
+.btn-primary:hover {background:var(--primary-dark);}
+.btn {background:var(--primary-light);color:var(--primary-mid);}
+.btn:hover {background:var(--primary-mid);color:white;}
+.btn-danger {background:var(--danger);color:white;}
+.btn-danger:hover {background:#8a2323;}
+.toolbar {display:flex; gap:13px; flex-wrap:wrap; align-items:center;margin-bottom:9px;}
+.pill {font-size:9.5px;border-radius:32px;border:1.2px solid var(--primary-mid);background:var(--primary-light);color:var(--primary-mid);padding:5px 10px;font-weight:700;}
+table{width:100%;border-collapse:collapse;font-size:9.5px;}
+thead th{position:sticky;top:53px;background:var(--primary-light);border-bottom:.9px solid var(--primary-mid);padding:6px 7px;text-align:left;color:var(--primary-dark);font-weight:700;}
+thead tr.filter-row th{background:var(--panel);border-bottom:none;padding:3px 7px;}
+thead tr.filter-row input, thead tr.filter-row select {width:100%;border-radius:8px;padding:4px 6px;font-size:10px;font-weight:600;}
+tbody td{border-bottom:1px solid var(--primary-light);padding:7px 8px;vertical-align:middle;color:var(--primary-dark);font-weight:600;}
+tfoot td{padding:9px 8px;font-weight:700;text-align:right;color:var(--primary-dark);border-top:.91px solid var(--primary-mid);}
+.center{text-align:center;}
+.right{text-align:right;}
+.chip{display:inline-block;font-size:9px;border-radius:11px;background:var(--primary-light);border:.8px solid var(--primary-mid);color:var(--primary-mid);padding:3px 9px;font-weight:700;}
+.chip.ok{border-color:var(--ok);background:#daf3d9;color:#2f742f;}
+.chip.warn{border-color:var(--warn);background:#fffbe0;color:#aa8800;}
+.chip.danger{border-color:var(--danger);background:#f9d6d6;color:#991111;}
+.stats{display:flex;gap:9px;flex-wrap:wrap;margin:5px 0 0;color:var(--primary-dark);font-weight:700;font-size: 9.5px;}
+.stat{background:var(--primary-light);border:1px solid var(--primary-mid);padding:7px 9px;border-radius:12px;box-shadow:0 2px 6px rgb(74 144 226 / .07);}
+.empty{padding:17px;text-align:center;color:var(--muted);font-weight:600;}
+/* Modal overlays */
+#sendModal, #salesOrderModal, #salesOrderPreviewModal, #loginOverlay {
+  display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.18); z-index: 1000; align-items: center; justify-content: center;
+}
+#sendModal .modal-content,
+#salesOrderModal .modal-content,
+#salesOrderPreviewModal .modal-content,
+#loginOverlay .modal-content {
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px 34px;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.19);
+  max-width: 800px; min-width: 280px;
+  color: var(--primary-dark); font-size: 12px; position: relative; font-weight: 700;
+}
+#salesOrderModal .modal-content {max-width:900px; width:70vw;}
+#salesOrderPreviewModal .modal-content {max-width:900px; width:70vw; white-space: pre-wrap; font-family: 'Aptos', Arial, sans-serif;}
+@media (max-width: 1000px) {
+  #salesOrderModal .modal-content,#salesOrderPreviewModal .modal-content{width:99vw !important;max-width:99vw !important;}
+}
+.line-item {border: 1.2px solid var(--primary-mid);padding: 9px 13px;border-radius: 10px;margin-bottom: 10px;background: var(--panel);}
+.line-item-header {font-weight: 700;margin-bottom: 4px;letter-spacing:.04em;color:var(--primary-mid);font-size: 11px;}
+.line-item label {margin-top: 7px;font-weight: 700;font-size:10px;}
+.line-item input[type="text"],.line-item input[type="number"],.line-item select{font-size:9px;margin-top:2px;border-radius:8px;padding:4.5px 7px; }
+.line-item button {margin-top:5px;padding:5px 10px;font-size:10px;}
+.buttons-line {display: flex; gap: 10px; margin-top: 11px; flex-wrap: wrap; justify-content: flex-end;}
+</style>
+</head>
+<body>
+
+<!-- Login Modal Overlay -->
+<div id="loginOverlay">
+  <div class="modal-content" style="max-width:350px;text-align:center;font-size:11px;">
+    <h3 style="margin-top:0">Welcome to Jainam Task Tracker</h3>
+    <p>Select your access level:</p>
+    <button id="adminAccessBtn" class="btn-primary" style="margin-bottom:8px; width: 100%;">Admin Access</button>
+    <button id="viewAccessBtn" class="btn" style="margin-bottom:12px; width: 100%;">View Access</button>
+    <div id="passwordSection" style="display:none;">
+      <input type="password" id="adminPassword" placeholder="Enter Admin Password" autocomplete="off" style="width:98%; margin-bottom:7px; font-size:11px;">
+      <button id="adminLoginSubmit" class="btn-primary" style="width:100%">Login</button>
+      <div id="loginError" style="color:#bb3b3b; font-weight:700; margin-top:7px; display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+    <h1>Jainam Task Tracker <span class="badge">Local‑first • Offline</span></h1>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+<div class="wrap">
+  <div class="grid">
+    <!-- --- Left Panel (Form) --- -->
+    <section class="card" style="grid-column: 1 / 2;">
+      <div class="card-inner">
+        <h2 id="formTitle">Add Task</h2>
+        <form id="taskForm">
+          <input type="hidden" id="taskId" />
+          <label>Task</label>
+          <input id="taskDescription" type="text" placeholder="e.g., GST return filing – ACME Pvt Ltd" required />
+          <div class="row">
+            <div>
+              <label>Client</label>
+              <input id="clientName" type="text" placeholder="Client name" />
+            </div>
+            <div>
+              <label>Assignee</label>
+              <input id="assigned" type="text" placeholder="Assigned to" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Reviewer</label>
+              <input id="reviewBy" type="text" placeholder="Reviewer" />
+            </div>
+            <div>
+              <label>Hours Spent (h)</label>
+              <input id="hoursSpent" type="number" step="0.25" min="0" placeholder="0" />
+            </div>
+          </div>
+          <div class="radio-group">
+            <label><input type="radio" name="taskStatus" value="pending" checked /> Pending</label>
+            <label><input type="radio" name="taskStatus" value="done" /> Done</label>
+            <label><input type="radio" name="taskStatus" value="scrapped" /> Scrapped</label>
+          </div>
+          <label class="chk"><input type="checkbox" id="billable" /> Billable work</label>
+          <label>Notes</label>
+          <textarea id="remarks" placeholder="Any details or checklist…"></textarea>
+          <div class="actions">
+            <button type="submit" class="btn-primary" id="saveBtn">Save Task</button>
+            <button type="button" class="btn" id="resetBtn">Reset</button>
+            <button type="button" class="btn-danger" id="deleteAllBtn">Delete All</button>
+          </div>
+        </form>
+      </div>
+    </section>
+    <!-- --- Right Panel (Table) --- -->
+    <section class="card" style="grid-column: 2 / 3;">
+      <div class="card-inner">
+        <div class="toolbar">
+          <button class="btn" id="pendingSummaryBtn">Pending Summary</button>
+          <button class="btn" id="togglePendingBtn">Show Pending Only</button>
+          <button class="btn" id="exportCsvBtn">Export CSV</button>
+          <span class="pill" id="sortInfo">Sorted by Newest</span>
+        </div>
+        <table id="taskTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Created</th>
+              <th>Task</th>
+              <th>Client</th>
+              <th>Assignee</th>
+              <th>Reviewer</th>
+              <th>Billable</th>
+              <th>Status</th>
+              <th>Completed</th>
+              <th>Age (days)</th>
+              <th>Hours</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+            <tr class="filter-row">
+              <th><input type="text" data-filter="index" placeholder="#" /></th>
+              <th><input type="text" data-filter="created" placeholder="Filter Created" /></th>
+              <th><input type="text" data-filter="description" placeholder="Filter Task" /></th>
+              <th><input type="text" data-filter="client" placeholder="Filter Client" /></th>
+              <th><input type="text" data-filter="assigned" placeholder="Filter Assignee" /></th>
+              <th><input type="text" data-filter="reviewBy" placeholder="Filter Reviewer" /></th>
+              <th>
+                <select data-filter="billable">
+                  <option value="">All</option>
+                  <option value="billable">Billable</option>
+                  <option value="non-billable">Non-billable</option>
+                </select>
+              </th>
+              <th>
+                <select data-filter="status">
+                  <option value="">All</option>
+                  <option value="pending">Pending</option>
+                  <option value="done">Done</option>
+                  <option value="scrapped">Scrapped</option>
+                </select>
+              </th>
+              <th><input type="text" data-filter="completed" placeholder="Filter Completed" /></th>
+              <th><input type="text" data-filter="age" placeholder="Filter Age" /></th>
+              <th><input type="text" data-filter="hours" placeholder="Filter Hours" /></th>
+              <th><input type="text" data-filter="notes" placeholder="Filter Notes" /></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="10" class="right">Total Hours (visible)</td>
+              <td id="hoursTotal" class="right">0.00</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="empty" id="empty" hidden>No tasks yet. Add your first task →</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Send Modal -->
+<div id="sendModal">
+  <div class="modal-content">
+    <h3>Choose an Action</h3>
+    <p id="modalText" style="font-size:12px; white-space: pre-line; margin-bottom:18px;"></p>
+    <button id="createSalesOrderBtn" class="btn-primary" style="margin-right:9px;margin-bottom:6px;">Create Sales Order</button>
+    <button id="directMessageBtn" class="btn" style="margin-bottom:6px;">Direct Message</button>
+    <button id="closeSendModalBtn" class="btn-danger" style="float:right;">Cancel</button>
+  </div>
+</div>
+
+<!-- Sales Order Modal -->
+<div id="salesOrderModal">
+  <div class="modal-content">
+    <h3>Create Sales Order</h3>
+    <form id="salesOrderForm" style="max-height:85vh;overflow-y:auto;">
+      <label>Customer Name: <input id="soCustomerName" type="text" required></label>
+      <label>GSTIN: <input id="soGSTIN" type="text" required></label>
+      <label>Sales Order Date: <input id="soOrderDate" type="date" required></label>
+      <label>Payment Terms: <input id="soPaymentTerms" type="text" placeholder="e.g., Net 30"></label>
+      <div id="lineItemsContainer"></div>
+      <button id="addLineItemBtn" type="button" class="btn" style="margin-top:7px;">Add Line Item</button>
+      <label>Description:</label>
+      <textarea id="soDescription" placeholder="Additional description or notes"></textarea>
+      <label>OPE: <input id="soOPE" type="text"></label>
+      <label>TDS Implications: <input id="soTDS" type="text"></label>
+      <label>Email ID (for Invoice): <input id="soEmail" type="email" required></label>
+      <label>Remarks: <textarea id="soRemarks"></textarea></label>
+      <div class="buttons-line">
+        <button type="button" id="previewSalesOrderBtn" class="btn-primary">Preview Sales Order</button>
+        <button type="submit" class="btn-primary">Submit Sales Order</button>
+        <button type="button" id="closeSalesOrderModal" class="btn-danger">Cancel</button>
+      </div>
+      <p class="error-msg" id="formErrorMsg" style="display:none;margin-top:9px;"></p>
+    </form>
+  </div>
+</div>
+
+<!-- Sales Order Preview Modal -->
+<div id="salesOrderPreviewModal">
+  <div class="modal-content">
+    <h3>Preview Sales Order</h3>
+    <pre id="salesOrderPreviewContent"></pre>
+    <div class="buttons-line">
+      <button id="sendSalesOrderEmail" class="btn-primary">Send Email</button>
+      <button id="sendSalesOrderWhatsapp" class="btn-primary">Send WhatsApp</button>
+      <button id="closePreviewBtn" class="btn-danger">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'task-tracker-table-v3';
+const sacListAccounting = [
+  { code: '998221', label: 'Financial auditing services' },
+  { code: '998222', label: 'Accounting and bookkeeping services' },
+  { code: '998223', label: 'Payroll services' },
+  { code: '998224', label: 'Other similar services' },
+];
+const sacListTax = [
+  { code: '998231', label: 'Corporate tax consulting and preparation services' },
+  { code: '998232', label: 'Individual tax preparation and planning services' },
+];
+let tasks = [];
+try { tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch{ tasks = []; }
+let accessMode = null;
+let showPendingOnly = false;
+let filters = {};
+
+const els = {
+  form: document.getElementById('taskForm'),
+  id: document.getElementById('taskId'),
+  desc: document.getElementById('taskDescription'),
+  client: document.getElementById('clientName'),
+  assigned: document.getElementById('assigned'),
+  reviewer: document.getElementById('reviewBy'),
+  billable: document.getElementById('billable'),
+  remarks: document.getElementById('remarks'),
+  hours: document.getElementById('hoursSpent'),
+  tableBody: document.querySelector('#taskTable tbody'),
+  hoursTotal: document.getElementById('hoursTotal'),
+  stats: document.getElementById('stats'),
+  empty: document.getElementById('empty'),
+  togglePendingBtn: document.getElementById('togglePendingBtn'),
+  exportCsvBtn: document.getElementById('exportCsvBtn'),
+  pendingSummaryBtn: document.getElementById('pendingSummaryBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  deleteAllBtn: document.getElementById('deleteAllBtn'),
+  formTitle: document.getElementById('formTitle'),
+  saveBtn: document.getElementById('saveBtn'),
+  filterInputs: document.querySelectorAll('thead tr.filter-row [data-filter]'),
+  sendModal: document.getElementById('sendModal'),
+  modalText: document.getElementById('modalText'),
+  createSalesOrderBtn: document.getElementById('createSalesOrderBtn'),
+  directMessageBtn: document.getElementById('directMessageBtn'),
+  closeSendModalBtn: document.getElementById('closeSendModalBtn'),
+  salesOrderModal: document.getElementById('salesOrderModal'),
+  salesOrderForm: document.getElementById('salesOrderForm'),
+  lineItemsContainer: document.getElementById('lineItemsContainer'),
+  addLineItemBtn: document.getElementById('addLineItemBtn'),
+  closeSalesOrderModal: document.getElementById('closeSalesOrderModal'),
+  formErrorMsg: document.getElementById('formErrorMsg'),
+  soCustomerName: document.getElementById('soCustomerName'),
+  soGSTIN: document.getElementById('soGSTIN'),
+  soOrderDate: document.getElementById('soOrderDate'),
+  soPaymentTerms: document.getElementById('soPaymentTerms'),
+  soDescription: document.getElementById('soDescription'),
+  soOPE: document.getElementById('soOPE'),
+  soTDS: document.getElementById('soTDS'),
+  soEmail: document.getElementById('soEmail'),
+  soRemarks: document.getElementById('soRemarks'),
+  loginOverlay: document.getElementById('loginOverlay'),
+  adminAccessBtn: document.getElementById('adminAccessBtn'),
+  viewAccessBtn: document.getElementById('viewAccessBtn'),
+  passwordSection: document.getElementById('passwordSection'),
+  adminPassword: document.getElementById('adminPassword'),
+  adminLoginSubmit: document.getElementById('adminLoginSubmit'),
+  loginError: document.getElementById('loginError'),
+};
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+function todayISO() {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d.toISOString();
+}
+function daysBetween(aIso, bIso) {
+  return Math.floor((new Date(bIso).setHours(0, 0, 0, 0) - new Date(aIso).setHours(0, 0, 0, 0))/86400000);
+}
+function esc(s='') {
+  return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+}
+function matchFilter(value, filter) {
+  if (!filter) return true;
+  if (typeof value !== 'string') value = String(value);
+  return value.toLowerCase().includes(filter.toLowerCase());
+}
+function setReadOnlyMode(readonly){
+  const formEls = els.form.querySelectorAll("input, textarea, select, button");
+  formEls.forEach(el=>{
+    el.disabled = readonly;
+    if(el.tagName==='INPUT' || el.tagName==='TEXTAREA'){
+      el.readOnly = readonly;
+    }
+  });
+  els.deleteAllBtn.disabled=readonly;
+  els.resetBtn.disabled=readonly;
+  setTimeout(()=>{
+    document.querySelectorAll("#taskTable button").forEach(btn=>{
+      btn.disabled = readonly;
+    });
+    document.querySelectorAll("#taskTable td:last-child").forEach(td=>{
+      td.style.pointerEvents = readonly ? "none" : "auto";
+    });
+  },0);
+}
+function renderStats(){
+  const open = tasks.filter(t=>t.status==='pending').length;
+  const done7 = tasks.filter(t=>t.status==='done' && t.completedAt && daysBetween(t.completedAt,todayISO())<=7).length;
+  const billableHrs = tasks.reduce((s,t)=> s + (t.billable?(Number(t.hours)||0):0), 0);
+  els.stats.innerHTML=`
+    <div class="stat">Open: <b>${open}</b></div>
+    <div class="stat">Closed (7d): <b>${done7}</b></div>
+    <div class="stat">Billable Hours (all): <b>${billableHrs.toFixed(2)}</b></div>
+  `;
+}
+function render() {
+  const view = [...tasks]
+  .sort((a,b)=>new Date(b.createdAt) - new Date(a.createdAt))
+  .filter(t=>{
+    if(showPendingOnly && t.status!=="pending") return false;
+    for(let key in filters){
+      const val=filters[key];
+      if(!val) continue;
+      switch(key){
+        case 'index': if(!matchFilter(String(tasks.indexOf(t)+1), val)) return false; break;
+        case 'created': if(!matchFilter(new Date(t.createdAt).toLocaleDateString(), val)) return false; break;
+        case 'description': if(!matchFilter(t.description, val)) return false; break;
+        case 'client': if(!matchFilter(t.client||'', val)) return false; break;
+        case 'assigned': if(!matchFilter(t.assigned||'', val)) return false; break;
+        case 'reviewBy': if(!matchFilter(t.reviewBy||'', val)) return false; break;
+        case 'billable': if(val==='billable' && !t.billable) return false; if(val==='non-billable' && t.billable) return false; break;
+        case 'status': if(t.status!==val) return false; break;
+        case 'completed': if(!matchFilter(t.completedAt?new Date(t.completedAt).toLocaleDateString():'', val)) return false; break;
+        case 'age': const age = t.status==='done'?'':daysBetween(t.createdAt, todayISO()); if(!matchFilter(age.toString(), val)) return false; break;
+        case 'hours': if(!matchFilter((Number(t.hours)||0).toFixed(2), val)) return false; break;
+        case 'notes': if(!matchFilter(t.remarks||'', val)) return false; break;
+      }
+    }
+    return true;
+  });
+  els.tableBody.innerHTML='';
+  let total=0;
+  view.forEach((t,idx)=>{
+    const tr=document.createElement('tr');
+    const created=new Date(t.createdAt).toLocaleDateString();
+    const completed=t.completedAt ? new Date(t.completedAt).toLocaleDateString() : '';
+    const age=t.status==='done' ? '' : daysBetween(t.createdAt, todayISO());
+    const ageChipClass = t.status==='done' ? '' : (age>=10 ? 'danger' : age>=5 ? 'warn' : 'ok');
+    const h=Number.isFinite(t.hours)?Number(t.hours):0;
+    total += (showPendingOnly && t.status==='done')?0:h;
+    tr.innerHTML=`
+      <td class="center">${idx+1}</td>
+      <td>${esc(created)}</td>
+      <td>${esc(t.description)}</td>
+      <td>${esc(t.client||'')}</td>
+      <td>${esc(t.assigned||'')}</td>
+      <td>${esc(t.reviewBy||'')}</td>
+      <td class="center">${t.billable?'<span class="chip ok">Billable</span>':'<span class="chip">Non‑billable</span>'}</td>
+      <td class="center">${esc(t.status.charAt(0).toUpperCase()+t.status.slice(1))}</td>
+      <td>${esc(completed)}</td>
+      <td>${t.status==='done'?'':`<span class="chip ${ageChipClass}">${age}</span>`}</td>
+      <td class="right">${h.toFixed(2)}</td>
+      <td>${esc(t.remarks||'')}</td>
+      <td>
+        <button class="btn" data-edit ${accessMode !== "admin" ? "disabled" : ""}>Edit</button>
+        <button class="btn-danger" data-del ${accessMode !== "admin" ? "disabled" : ""}>Delete</button>
+      </td>
+    `;
+    tr.querySelector('[data-edit]').addEventListener('click', ()=> editTask(t.id));
+    tr.querySelector('[data-del]').addEventListener('click', ()=> remove(t.id));
+    els.tableBody.appendChild(tr);
+  });
+  els.hoursTotal.textContent = total.toFixed(2);
+  els.empty.hidden = view.length !== 0;
+  renderStats();
+}
+
+els.form.addEventListener('submit', e => {
+  e.preventDefault();
+  if(accessMode !== "admin") return;
+  const id = els.id.value.trim();
+  const selectedStatus = els.form.querySelector('input[name="taskStatus"]:checked');
+  let status = selectedStatus ? selectedStatus.value : 'pending';
+  const payload = {
+    description: els.desc.value.trim(),
+    client: els.client.value.trim(),
+    assigned: els.assigned.value.trim(),
+    reviewBy: els.reviewer.value.trim(),
+    billable: els.billable.checked,
+    remarks: els.remarks.value.trim(),
+    hours: Math.max(0, parseFloat(els.hours.value || '0') || 0),
+    status
+  };
+  if(!payload.description){
+    alert('Task description is required.');
+    return;
+  }
+  if(id){
+    const task = tasks.find(t => String(t.id) === id);
+    if(!task) return;
+    Object.assign(task, payload);
+    if(task.status==='done' && task.billable){
+      showSendModal(task);
+    }
+  } else {
+    const task = { id: Date.now(), createdAt: new Date().toISOString(), completedAt: undefined, ...payload };
+    tasks.push(task);
+    if(status==='done' && payload.billable){
+      showSendModal(task);
+    }
+  }
+  save();
+  clearFilterInputs();
+  render();
+  els.form.reset();
+  els.id.value = '';
+  els.formTitle.textContent = "Add Task";
+  els.saveBtn.textContent = "Save Task";
+});
+
+function editTask(id){
+  if(accessMode !== "admin") return;
+  const task = tasks.find(t => t.id === id);
+  if(!task) return;
+  els.id.value = String(task.id);
+  els.desc.value = task.description;
+  els.client.value = task.client || '';
+  els.assigned.value = task.assigned || '';
+  els.reviewer.value = task.reviewBy || '';
+  els.billable.checked = task.billable || false;
+  els.remarks.value = task.remarks || '';
+  els.hours.value = (Number(task.hours) || 0).toString();
+  const rad = els.form.querySelector(`input[name="taskStatus"][value="${task.status}"]`);
+  if(rad) rad.checked = true;
+  window.scrollTo({top:0, behavior:'smooth'});
+  els.formTitle.textContent = "Edit Task";
+  els.saveBtn.textContent = "Update Task";
+}
+
+function remove(id){
+  if(accessMode !== "admin") return;
+  if(confirm('Delete this task?')){
+    tasks = tasks.filter(t => t.id !== id);
+    save(); render();
+  }
+}
+
+// Send Modal functionality
+function showSendModal(task){
+  els.sendModal.style.display = 'flex';
+  els.modalText.textContent =
+    `Task: ${task.description}\nClient: ${task.client}\nAssignee: ${task.assigned}\nHours: ${task.hours}\nNotes: ${task.remarks}`;
+  els.createSalesOrderBtn.onclick = function(){
+    els.sendModal.style.display = 'none';
+    openSalesOrderModal(task);
+  };
+  els.directMessageBtn.onclick = function(){
+    els.sendModal.style.display = 'none';
+    directMessage(task);
+  };
+  els.closeSendModalBtn.onclick = function(){
+    els.sendModal.style.display = 'none';
+  };
+}
+
+function directMessage(task){
+  const subject = encodeURIComponent('Billable Task Completed');
+  const body = encodeURIComponent(
+    `Task: ${task.description}\nClient: ${task.client}\nAssignee: ${task.assigned}\nHours: ${task.hours}\nNotes: ${task.remarks}`
+  );
+  window.open(`mailto:accounts@dgsoni.com?subject=${subject}&body=${body}`, '_blank');
+}
+
+// Sales order modal logic ...
+let currentSalesOrderTask = null;
+const maxLineItems = 10;
+function openSalesOrderModal(task){
+  currentSalesOrderTask = task;
+  els.salesOrderForm.reset();
+  els.lineItemsContainer.innerHTML = '';
+  addLineItem();
+  els.soCustomerName.value = task.client || '';
+  els.soOrderDate.value = new Date().toISOString().slice(0,10);
+  els.formErrorMsg.style.display = 'none';
+  els.salesOrderModal.style.display = 'flex';
+}
+els.closeSalesOrderModal.onclick = function() {
+  els.salesOrderModal.style.display = 'none';
+};
+els.addLineItemBtn.onclick = function() {
+  if(els.lineItemsContainer.children.length < maxLineItems) addLineItem();
+};
+function addLineItem() {
+  const count = els.lineItemsContainer.children.length + 1;
+  const div = document.createElement('div');
+  div.className = 'line-item';
+  div.innerHTML = `
+    <div class="line-item-header">Description ${count} & Amount ${count}</div>
+    <label>SAC:
+      <select class="lineSac" required>
+        <optgroup label="Accounting, Auditing & Bookkeeping Services">
+          ${sacListAccounting.map(s => `<option value="${s.code}">${s.code} – ${s.label}</option>`).join('')}
+        </optgroup>
+        <optgroup label="Tax Consultancy and Preparation Services">
+          ${sacListTax.map(s => `<option value="${s.code}">${s.code} – ${s.label}</option>`).join('')}
+        </optgroup>
+      </select>
+    </label>
+    <label>Description:
+      <input type="text" class="lineDescription" placeholder="Description ${count}" required>
+    </label>
+    <label>Amount:
+      <input type="number" step="0.01" min="0" class="lineAmount" placeholder="Amount ${count}" required>
+    </label>
+    <button type="button" class="btn-danger" style="margin-top:4px" onclick="removeLineItem(this)" ${accessMode!=="admin"?"disabled":""}>Remove</button>
+  `;
+  els.lineItemsContainer.appendChild(div);
+}
+window.removeLineItem = function(btn) {
+  if(els.lineItemsContainer.children.length > 1) {
+    btn.closest('.line-item').remove();
+  }
+};
+
+// SALES ORDER PREVIEW MODAL
+const previewBtn = document.getElementById('previewSalesOrderBtn');
+const previewContent = document.getElementById('salesOrderPreviewContent');
+const previewModal = document.getElementById('salesOrderPreviewModal');
+const sendSalesOrderEmailBtn = document.getElementById('sendSalesOrderEmail');
+const sendSalesOrderWhatsappBtn = document.getElementById('sendSalesOrderWhatsapp');
+const closePreviewBtn = document.getElementById('closePreviewBtn');
+
+previewBtn.onclick = function(e){
+  e.preventDefault();
+  els.formErrorMsg.style.display='none';
+  // Add basic validation (mirror submit)
+  if(!els.soCustomerName.value.trim()){ showError('Customer Name is required.'); return; }
+  if(!els.soGSTIN.value.trim()){ showError('GSTIN is required.'); return; }
+  if(!els.soOrderDate.value.trim()){ showError('Sales Order Date is required.'); return; }
+  if(!els.soEmail.value.trim()){ showError('Invoice Email ID is required.'); return; }
+  let ok = true;
+  for(let div of els.lineItemsContainer.children){
+    const desc = div.querySelector('.lineDescription').value.trim();
+    const amt = parseFloat(div.querySelector('.lineAmount').value);
+    if(!desc){ showError('Description required.'); ok=false; }
+    if(isNaN(amt)||amt < 0) { showError('Amount must be a valid number above 0.'); ok=false;}
+  }
+  if(!ok) return;
+
+  previewContent.textContent = buildSalesOrderMessage();
+  previewModal.style.display = 'flex';
+};
+closePreviewBtn.onclick = function(){ previewModal.style.display='none';};
+sendSalesOrderEmailBtn.onclick = function() {
+  const subj = encodeURIComponent('Sales Order');
+  const body = encodeURIComponent(previewContent.textContent);
+  const email = els.soEmail.value;
+  window.open(`mailto:${email}?subject=${subj}&body=${body}`, '_blank');
+  previewModal.style.display = 'none';
+  els.salesOrderModal.style.display='none';
+};
+sendSalesOrderWhatsappBtn.onclick = function() {
+  const body = encodeURIComponent(previewContent.textContent);
+  window.open(`https://wa.me/?text=${body}`, '_blank');
+  previewModal.style.display = 'none';
+  els.salesOrderModal.style.display='none';
+};
+
+function buildSalesOrderMessage() {
+  let message = `Sales Order Details\nCustomer Name: ${els.soCustomerName.value}\nGSTIN: ${els.soGSTIN.value}\nSales Order Date: ${els.soOrderDate.value}\nPayment Terms: ${els.soPaymentTerms.value || '-'}\n\nItems:\n`;
+  for(let div of els.lineItemsContainer.children){
+    const sac = div.querySelector('.lineSac').value;
+    const desc = div.querySelector('.lineDescription').value.trim();
+    const amt = parseFloat(div.querySelector('.lineAmount').value);
+    message += `- SAC ${sac}, Description: ${desc}, Amount: ${amt.toFixed(2)}\n`;
+  }
+  message += `\nDescription: ${els.soDescription.value}\nOPE: ${els.soOPE.value}\nTDS Implications: ${els.soTDS.value}\nInvoice Email ID: ${els.soEmail.value}\nRemarks: ${els.soRemarks.value}\nGST Rate: 18%\n\nThank you.`;
+  return message;
+}
+
+els.salesOrderForm.onsubmit = function(e) {
+  e.preventDefault();
+  if(accessMode !== "admin") return;
+  els.formErrorMsg.style.display = 'none';
+  // Same validation as preview
+  if(!els.soCustomerName.value.trim()){ showError('Customer Name is required.'); return;}
+  if(!els.soGSTIN.value.trim()){ showError('GSTIN is required.'); return;}
+  if(!els.soOrderDate.value.trim()){ showError('Sales Order Date is required.'); return;}
+  if(!els.soEmail.value.trim()){ showError('Invoice Email ID is required.'); return;}
+  let ok = true;
+  for(let div of els.lineItemsContainer.children){
+    const desc = div.querySelector('.lineDescription').value.trim();
+    const amt = parseFloat(div.querySelector('.lineAmount').value);
+    if(!desc){ showError('Description required.'); ok = false;}
+    if(isNaN(amt)||amt < 0) { showError('Amount must be a valid number above 0.'); ok=false; }
+  } if(!ok) return;
+  // Instead of mailing directly, force preview for final confirmation
+  previewContent.textContent = buildSalesOrderMessage();
+  previewModal.style.display = 'flex';
+};
+function showError(msg) {
+  els.formErrorMsg.style.display='block';
+  els.formErrorMsg.textContent=msg;
+}
+function validateEmail(email) {
+  const regex = /\S+@\S+\.\S+/;
+  return regex.test(email);
+}
+
+// Toolbar button features
+els.pendingSummaryBtn.addEventListener('click', () => {
+  const pendingTasks = tasks.filter(t => t.status === 'pending').sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+  if(pendingTasks.length === 0) {
+    alert('No pending tasks.');
+    return;
+  }
+  const lines = pendingTasks.map(t => `• ${t.description} — ${daysBetween(t.createdAt, todayISO())} day(s) — ${t.client || '-'}`).join('\n');
+  alert(`Pending tasks by oldest (days since creation)\n\n${lines}`);
+});
+
+els.togglePendingBtn.addEventListener('click', () => {
+  showPendingOnly = !showPendingOnly;
+  els.togglePendingBtn.textContent = showPendingOnly ? 'Show All' : 'Show Pending Only';
+  render();
+});
+
+els.exportCsvBtn.addEventListener('click', () => {
+  const header = ['#','Created','Task','Client','Assignee','Reviewer','Billable','Status','Completed','Age (days)','Hours','Notes'];
+  const filteredTasks = tasks.filter(t => !showPendingOnly || t.status === 'pending').sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const rows = filteredTasks.map((t,i) => [
+    i + 1,
+    new Date(t.createdAt).toLocaleDateString(),
+    csv(t.description),
+    csv(t.client || ''),
+    csv(t.assigned || ''),
+    csv(t.reviewBy || ''),
+    t.billable ? 'Yes' : 'No',
+    t.status[0].toUpperCase() + t.status.slice(1),
+    t.completedAt ? new Date(t.completedAt).toLocaleDateString() : '',
+    t.status === 'done' ? '' : String(daysBetween(t.createdAt, todayISO())),
+    (Number(t.hours) || 0).toFixed(2),
+    csv(t.remarks || '')
+  ]);
+  const csvData = [header, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csvData], {type: 'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'task-tracker.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+function csv(value = '') {
+  return '"' + String(value).replace(/"/g, '""') + '"';
+}
+
+els.filterInputs.forEach(input => {
+  input.addEventListener('input', () => {
+    filters = {};
+    els.filterInputs.forEach(i => {
+      if (i.value.trim() !== '') filters[i.dataset.filter] = i.value.trim();
+    });
+    render();
+  });
+});
+
+function clearFilterInputs(){
+  els.filterInputs.forEach(i => {
+    if(i.tagName.toLowerCase() === 'select') i.value = '';
+    else i.value = '';
+  });
+  filters = {};
+}
+
+els.resetBtn.addEventListener('click', () => {
+  if(accessMode !== "admin") return;
+  els.form.reset();
+  els.id.value = '';
+  els.formTitle.textContent = "Add Task";
+  els.saveBtn.textContent = "Save Task";
+  clearFilterInputs();
+  render();
+});
+
+els.deleteAllBtn.addEventListener('click', () => {
+  if(accessMode !== "admin") return;
+  if(confirm('Delete ALL tasks?')){
+    tasks = [];
+    save();
+    render();
+    els.form.reset();
+    els.id.value = '';
+    clearFilterInputs();
+  }
+});
+
+function setAccessMode(mode){
+  accessMode = mode;
+  els.loginOverlay.style.display = 'none';
+  setReadOnlyMode(accessMode === "view");
+  render();
+}
+
+els.adminAccessBtn.onclick = function(){
+  els.passwordSection.style.display = 'block';
+  els.adminAccessBtn.disabled = true;
+  els.viewAccessBtn.disabled = true;
+  els.loginError.style.display = 'none';
+  els.adminPassword.value = '';
+};
+els.adminLoginSubmit.onclick = function(){
+  if(els.adminPassword.value === "Joker@1235"){
+    setAccessMode("admin");
+  } else {
+    els.loginError.textContent = "Incorrect password. Please try again.";
+    els.loginError.style.display = "block";
+  }
+};
+els.viewAccessBtn.onclick = function(){
+  setAccessMode("view");
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  els.loginOverlay.style.display = 'flex';
+  els.passwordSection.style.display = 'none';
+  els.adminAccessBtn.disabled = false;
+  els.viewAccessBtn.disabled = false;
+  els.loginError.style.display = 'none';
+  accessMode = null;
+});
+</script>
+</body>
+</html>
